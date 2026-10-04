@@ -1,0 +1,10 @@
+[
+  {"repo": "alveelan", "logo": "alveelan", "blurb": "A Bangla programming language for kids. Bangla keywords, digits and errors, compiled to native code through LLVM."},
+  {"repo": "gridwise-energy-optimizer", "name": "gridwise", "logo": "gridwise", "blurb": "Operator notes in plain English become typed constraints, then an exact LP finds the cheapest 24 h energy plan."},
+  {"repo": "dhaka-aqi-dashboard", "name": "dhaka-aqi", "logo": "dhaka-aqi", "blurb": "Air-quality monitoring and next-hour PM2.5 forecasting for Dhaka, with a live dashboard."},
+  {"repo": "doofen", "logo": "doofen", "blurb": "A scroll-driven 3D agency site: a wireframe building assembles as you scroll, with a built-in CMS."},
+  {"repo": "scormplayer", "logo": "scormplayer", "blurb": "An e-learning test harness that validates SCORM packages and logs every LMS API call live."},
+  {"repo": "bup-diary", "logo": "bup-diary", "blurb": "An AI journal you can talk to. It finds your most relevant past entry before answering."},
+  {"repo": "swing-expense-tracker", "name": "expense-tracker", "logo": "expense-tracker", "blurb": "A desktop finance tracker with income, categories, pie charts and salted-hash accounts."},
+  {"repo": "Goriber-Habit-Tracker", "name": "habit-tracker", "logo": "habit-tracker", "blurb": "A dependency-free terminal study tracker: stopwatch, pomodoro, streaks and per-subject stats."}
+]

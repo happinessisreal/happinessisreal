@@ -10,7 +10,7 @@ from fontTools import subset
 from fontTools.ttLib import TTFont
 
 FONTS = Path(__file__).with_name("fonts")
-CHARS = "".join(chr(c) for c in range(32, 127)) + "·–—→←↑↓…×%°"
+CHARS = "".join(chr(c) for c in range(32, 127)) + "·–—→←↑↓…×%°❯●▸"
 
 for weight, name in [(400, "Regular"), (600, "SemiBold")]:
     font = TTFont(FONTS / f"JetBrainsMono-{name}.ttf", recalcTimestamp=False)
