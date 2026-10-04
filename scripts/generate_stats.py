@@ -242,7 +242,7 @@ def draw_terminal(profile, year, current, longest, langs, today):
         ("uptime", f"{(today - created).days // 365} years"),
         ("repos", f"{repos['totalCount']} public"),
         ("langs", " · ".join(n.lower() for n, _ in langs.most_common(4))),
-        ("commits", f"{sum(year.values())} this year · {sum(1 for n in year.values() if n)} active days"),
+        ("contribs", f"{sum(year.values())} this year · {sum(1 for n in year.values() if n)} active days"),
         ("streak", f"{current[0]} day{'s' * (current[0] != 1)} · best {longest[0]}"),
         ("now", now),
     ]
