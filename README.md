@@ -44,7 +44,3 @@
 <img src="./year.svg" width="820" alt="The last year, one character per day, quiet to loud"/>
 
 </div>
-
-<sub>Every graphic on this page is an SVG drawn by this repository's own <a href=".github/workflows/stats.yml">scheduled action</a> from the GitHub GraphQL API, refreshed daily and committed only when something changed. No third-party widgets.
-The portrait and the logos are images turned into characters by <a href="scripts/make_portrait.py"><code>make_portrait.py</code></a> and <a href="scripts/make_logo_ascii.py"><code>make_logo_ascii.py</code></a>: glyph density follows brightness, colour comes from k-means clusters of the image.
-The typeface is <a href="scripts/fonts">JetBrains Mono</a>, subset and inlined in every file. To set the "now" line, put one line in <code>now.txt</code>.</sub>
