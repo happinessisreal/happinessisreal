@@ -10,6 +10,8 @@
 
 <a id="projects"></a>
 
+<img src="./projects.svg" width="820" alt="ls ~/projects"/>
+
 <a href="https://github.com/happinessisreal/alveelan"><img src="./card-alveelan.svg" width="404" alt="alveelan: A Bangla programming language for kids. Bangla keywords, digits and errors, compiled to native code through LLVM."/></a> <a href="https://github.com/happinessisreal/gridwise-energy-optimizer"><img src="./card-gridwise.svg" width="404" alt="gridwise: Operator notes in plain English become typed constraints, then an exact LP finds the cheapest 24 h energy plan."/></a>
 <a href="https://github.com/happinessisreal/dhaka-aqi-dashboard"><img src="./card-dhaka-aqi.svg" width="404" alt="dhaka-aqi: Air-quality monitoring and next-hour PM2.5 forecasting for Dhaka, with a live dashboard."/></a> <a href="https://github.com/happinessisreal/doofen"><img src="./card-doofen.svg" width="404" alt="doofen: A scroll-driven 3D agency site: a wireframe building assembles as you scroll, with a built-in CMS."/></a>
 <a href="https://github.com/happinessisreal/scormplayer"><img src="./card-scormplayer.svg" width="404" alt="scormplayer: An e-learning test harness that validates SCORM packages and logs every LMS API call live."/></a> <a href="https://github.com/happinessisreal/bup-diary"><img src="./card-bup-diary.svg" width="404" alt="bup-diary: An AI journal you can talk to. It finds your most relevant past entry before answering."/></a>
@@ -43,6 +45,6 @@
 
 </div>
 
-<sub>Every window on this page is an SVG drawn by this repository's own <a href=".github/workflows/stats.yml">scheduled action</a> from the GitHub GraphQL API, refreshed daily and committed only when something changed. No third-party widgets.
+<sub>Every graphic on this page is an SVG drawn by this repository's own <a href=".github/workflows/stats.yml">scheduled action</a> from the GitHub GraphQL API, refreshed daily and committed only when something changed. No third-party widgets.
 The portrait and the logos are images turned into characters by <a href="scripts/make_portrait.py"><code>make_portrait.py</code></a> and <a href="scripts/make_logo_ascii.py"><code>make_logo_ascii.py</code></a>: glyph density follows brightness, colour comes from k-means clusters of the image.
 The typeface is <a href="scripts/fonts">JetBrains Mono</a>, subset and inlined in every file. To set the "now" line, put one line in <code>now.txt</code>.</sub>

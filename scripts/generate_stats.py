@@ -4,7 +4,7 @@
     GITHUB_TOKEN=... GH_LOGIN=happinessisreal python3 scripts/generate_stats.py
     (locally, without GITHUB_TOKEN, it calls `gh api graphql` instead)
 
-Writes terminal.svg (neofetch), card-*.svg (one per project), activity.svg (git log),
+Writes terminal.svg (neofetch), projects.svg + card-*.svg (one per project), activity.svg (git log),
 stats.svg, langs.svg and year.svg in the repo root. Standard library only, so the
 scheduled workflow has nothing to install.
 
@@ -32,15 +32,24 @@ TOKEN = os.environ.get("GITHUB_TOKEN", "")
 LOGIN = os.environ.get("GH_LOGIN", "happinessisreal")
 W = 820          # every window shares GitHub's README column width, so edges line up
 CARD_W = 404     # two cards per row
-BAR = 32         # title bar height
 CW = 13 * 0.6    # JetBrains Mono advance at 13px
 # Notebooks count their embedded output images as "code", which swamps real languages.
 EXCLUDE_LANGS = {"Jupyter Notebook"}
 
-# Terminals are dark in both themes (like the portrait's panel), so one fixed palette.
-CSS = (".bg{fill:#0d1117}.bar{fill:#161b22}.edge{stroke:#30363d}.ink{fill:#e6edf3}.mut{fill:#8b949e}"
-       ".fnt{fill:#6e7681}.grn{fill:#3fb950}.amb{fill:#e3b341}.blu{fill:#79c0ff}.trk{fill:#21262d}"
-       ".accs{stroke:#e3b341}.soft{fill:#e3b341;opacity:.16}")
+# No frames: text sits straight on GitHub's page, so the palette follows its theme.
+_LIGHT = {"ink": "#1f2328", "mut": "#59636e", "fnt": "#8c959f", "grn": "#1a7f37", "amb": "#9a6700",
+          "blu": "#0969da", "trk": "#eaeef2", "line": "#d1d9e0", "stroke": "#bf8700"}
+_DARK = {"ink": "#e6edf3", "mut": "#8b949e", "fnt": "#6e7681", "grn": "#3fb950", "amb": "#e3b341",
+         "blu": "#79c0ff", "trk": "#21262d", "line": "#30363d", "stroke": "#e3b341"}
+
+
+def _rules(p):
+    return (f".ink{{fill:{p['ink']}}}.mut{{fill:{p['mut']}}}.fnt{{fill:{p['fnt']}}}.grn{{fill:{p['grn']}}}"
+            f".amb{{fill:{p['amb']}}}.blu{{fill:{p['blu']}}}.trk{{fill:{p['trk']}}}.edge{{stroke:{p['line']}}}"
+            f".accs{{stroke:{p['stroke']}}}.soft{{fill:{p['stroke']};opacity:.16}}")
+
+
+CSS = _rules(_LIGHT) + "@media(prefers-color-scheme:dark){" + _rules(_DARK) + "}"
 FONTS = prebuilt_face(400) + prebuilt_face(600)
 
 
@@ -153,20 +162,29 @@ def typed(x, y, cmd, begin, uid, size=13):
     return svg, begin + dur + 0.15
 
 
-def window(width, height, title, body):
-    dots = "".join(f'<circle cx="{18 + i * 18}" cy="16" r="5.5" fill="{c}"/>'
-                   for i, c in enumerate(["#ff5f57", "#febc2e", "#28c840"]))
-    return (f'<rect x=".5" y=".5" width="{width - 1}" height="{height - 1}" rx="12" class="bg edge" stroke-width="1"/>'
-            f'<path d="M.5 12.5A12 12 0 0 1 12.5 .5H{width - 12.5}A12 12 0 0 1 {width - .5} 12.5V{BAR}H.5Z" class="bar"/>'
-            f'<line x1=".5" y1="{BAR}" x2="{width - .5}" y2="{BAR}" class="edge" stroke-width="1"/>{dots}'
-            + text(width / 2, 20.5, title, "mut", 12, anchor="middle")
-            + f'<g transform="translate(0 {BAR})">{body}</g>')
+def frame(body):
+    """Content only: no box, title bar or border (they read as clutter on the page)."""
+    return body
+
+
+def for_light(hex_colour: str) -> str:
+    """Darken an ASCII-art colour picked for dark backgrounds so it reads on white."""
+    r, g, b = (int(hex_colour[i:i + 2], 16) / 255 for i in (1, 3, 5))
+    mx, mn = max(r, g, b), min(r, g, b)
+    v, sat = mx, (0 if mx == 0 else (mx - mn) / mx)
+    if sat < 0.18:  # whites and greys → mid grey
+        k = 0.42 / max(v, 1e-6)
+    else:           # colours → deeper and a little more saturated
+        k = min(1.0, 0.68 / max(v, 1e-6))
+    r, g, b = (min(1, c * k) for c in (r, g, b))
+    return "#" + "".join(f"{round(c * 255):02x}" for c in (r, g, b))
 
 
 def ascii_art(x, y, art, size, begin, step, prefix):
     """Coloured ASCII block (lines + per-cell colour index + palette), fading in row by row."""
     lh = size * 1.12
-    css = "".join(f".{prefix}{i}{{fill:{h}}}" for i, h in enumerate(art["palette"]))
+    css = ("".join(f".{prefix}{i}{{fill:{for_light(h)}}}" for i, h in enumerate(art["palette"]))
+           + "@media(prefers-color-scheme:dark){" + "".join(f".{prefix}{i}{{fill:{h}}}" for i, h in enumerate(art["palette"])) + "}")
     out = f"<style>{css}</style>"
     for r, (line, crow) in enumerate(zip(art["lines"], art["colors"])):
         if not line.strip():
@@ -242,8 +260,13 @@ def draw_terminal(profile, year, current, longest, langs, today):
     swatches = "".join(f'<rect x="{x + i * 26}" y="{sw_y}" width="22" height="12" rx="2" fill="{h}"/>'
                        for i, h in enumerate(portrait_palette()))
     body += art + info + fade(swatches, t + 0.8, 0.4)
-    height = BAR + max(46 + art_h, sw_y + 12) + 20
-    write("terminal.svg", W, height, window(W, height, f"{LOGIN} — zsh", body))
+    height = max(46 + art_h, sw_y + 12) + 12
+    write("terminal.svg", W, height, frame(body))
+
+
+def draw_projects_prompt():
+    body, _ = typed(20, 22, "ls ~/projects", 0.1, "pp")
+    write("projects.svg", W, 32, body)
 
 
 def draw_cards(profile):
@@ -258,14 +281,13 @@ def draw_cards(profile):
         logo = logos[p["logo"]]
         rows = len(logo["lines"])
         size = min(9.6, 160 / (rows * 1.12))  # tall logos shrink to fit the same box
-        art, art_h, _ = ascii_art(16, (176 - rows * size * 1.12) / 2, logo, size, 0.15, 0.02, "l")
+        art, art_h, _ = ascii_art(16, (184 - rows * size * 1.12) / 2 - 6, logo, size, 0.15, 0.02, "l")
         tx = 172
         body = art + text(tx, 34, f"{name}/", "blu", 15, 600)
         body += text(tx, 54, " · ".join(s for s in (lang, f"pushed {pushed}" if pushed else "") if s), "mut", 11.5)
         for j, line in enumerate(wrap(p["blurb"], 30)[:6]):
             body += text(tx, 80 + j * 17.5, line, "ink", 12)
-        height = BAR + 184
-        write(f"card-{name}.svg", CARD_W, height, window(CARD_W, height, f"~/projects/{name}", fade(body, 0.05, 0.3)))
+        write(f"card-{name}.svg", CARD_W, 184, frame(fade(body, 0.05, 0.3)))
 
 
 def draw_activity(repos):
@@ -278,8 +300,7 @@ def draw_activity(repos):
         line = (text(20, y, sha, "amb", 13) + text(20 + 8 * CW, y, repo, "blu", 13)
                 + text(20 + (9 + len(repo)) * CW, y, msg, "ink", 13) + text(W - 20, y, when[:10], "fnt", 12, anchor="end"))
         body += fade(line, t + 0.1 + i * 0.08, 0.3)
-    height = BAR + 60 + len(commits) * 23 + 4
-    write("activity.svg", W, height, window(W, height, "~ — git log", body))
+    write("activity.svg", W, 60 + len(commits) * 23 - 8, frame(body))
 
 
 def draw_stats(year, start, current, longest):
@@ -317,7 +338,7 @@ def draw_stats(year, start, current, longest):
              + f'<rect x="{x0}" y="320" width="{x1 - x0}" height="3" rx="1.5" class="trk"/>'
                f'<rect x="{x0}" y="320" width="0" height="3" rx="1.5" class="amb">'
                f'<animate attributeName="width" from="0" to="{(x1 - x0) * ratio:.1f}" begin="{t + 0.7:.2f}s" dur="0.8s" fill="freeze"/></rect>')
-    write("stats.svg", W, BAR + 340, window(W, BAR + 340, "~ — contributions", body))
+    write("stats.svg", W, 332, frame(body))
 
 
 def draw_langs(langs, year):
@@ -343,7 +364,7 @@ def draw_langs(langs, year):
         right += (f'<rect x="{cx - 14}" y="{230 - h:.1f}" width="28" height="{h:.1f}" rx="3" class="{"amb" if v == peak else "trk"}"/>'
                   + text(cx, 248, label, "mut", 11, anchor="middle") + text(cx, 224 - h, v, "ink", 11, anchor="middle"))
     body += fade(left, t + 0.1) + fade(right, t + 0.3)
-    write("langs.svg", W, BAR + 262, window(W, BAR + 262, "~ — languages", body))
+    write("langs.svg", W, 256, frame(body))
 
 
 def draw_year(year, start, end):
@@ -379,7 +400,7 @@ def draw_year(year, start, end):
     body += (months + sweep + f'<g clip-path="url(#sw)"><g class="fnt">{quiet}</g><g class="amb">{loud}</g></g>'
              + text(20, 192, f"{sum(1 for n in year.values() if n)} active days of {len(year)}", "fnt", 11)
              + text(W - 20, 192, "quiet · : + # @ loud", "fnt", 11, anchor="end"))
-    write("year.svg", W, BAR + 206, window(W, BAR + 206, "~ — calendar", body))
+    write("year.svg", W, 200, frame(body))
 
 
 # ------------------------------------------------------------------ main
@@ -402,6 +423,7 @@ def main():
     repos = profile["repositories"]["nodes"]
     langs = languages(repos)
     draw_terminal(profile, year, current, longest, langs, today)
+    draw_projects_prompt()
     draw_cards(profile)
     draw_activity(repos)
     draw_stats(year, start, current, longest)
