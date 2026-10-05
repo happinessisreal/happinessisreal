@@ -4,7 +4,7 @@
 
 <img src="./terminal.svg" width="820" alt="neofetch for happinessisreal@github: host, uptime, public repos, top languages, contributions this year, streak and what I'm working on now"/>
 
-[github](https://github.com/happinessisreal) &nbsp;·&nbsp; [projects](#projects) &nbsp;·&nbsp; [activity](#activity)
+[site](https://happinessisreal.github.io) &nbsp;·&nbsp; [writeups](https://happinessisreal.github.io/writeups) &nbsp;·&nbsp; [projects](#projects) &nbsp;·&nbsp; [activity](#activity)
 
 </div>
 
